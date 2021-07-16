@@ -25,6 +25,6 @@ ENV IVP_BEHAVIOR_DIRS="/home/moos/${PLEARN}/lib:${IVP_BEHAVIOR_DIRS}"
 ENV PYTHONPATH="${PYTHONPATH}:/home/moos/${PLEARN}/pLearn/learning_code:/home/moos/${PLEARN}/src/lib_python"
 
 RUN git clone https://github.com/mnovitzky/moos-ivp-pLearn.git
-COPY --chown=moos:moos . moos-ivp-pLearn/
+#COPY --chown=moos:moos . moos-ivp-pLearn/
 
 RUN cd ${PLEARN} && ./build.sh

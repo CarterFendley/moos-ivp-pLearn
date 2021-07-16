@@ -21,10 +21,20 @@ elif [[ "$1" == "run" ]]; then
     printf "Enabling xhost server...\n"
     xhost +
     printf "Starting docker container...\n"
-    docker run --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix" --name  plearn -it plearn:1.0 bash 
+    printf "\n==========================================\n"
+    printf "= To exit and stop: run command \"exit\"   =\n"
+    printf "= To detach: CTRL+p CTRL+q               =\n"
+    printf "==========================================\n\n"
+    docker run --env="DISPLAY" \
+        --volume="/tmp/.X11-unix:/tmp/.X11-unix" \
+        --mount type=bind,source="$(pwd)"/pLearn,target=/home/moos/moos-ivp-pLearn/pLearn \
+        --name plearn -it plearn:1.0 bash 
     printf "WARNING: Docker container will run in background unless stopped\n"
 elif [[ "$1" == "connect" ]]; then
     printf "Conecting to docker container...\n"
+    printf "\n==========================================\n"
+    printf "= To detach: CTRL+p CTRL+q               =\n"
+    printf "==========================================\n\n"
     docker exec -it plearn bash
 elif [[ "$1" == "stop" ]]; then
     printf "Stopping docker container...\n"
