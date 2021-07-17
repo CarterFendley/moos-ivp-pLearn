@@ -7,9 +7,17 @@ build/
 lib/
 .LastOpenedMOOSLogDirectory
 LOG_*/
+*.log
+*.csv
+*.pyc
 cmake-build-debug/
 targ_*
 .idea
 CMakeFiles
 #.moos++
+
+pLearn/learning_code/models/*
+pLearn/learning_code/paths
+pLearn/learning_code/processed
+pLearn/learning_code/results
 
