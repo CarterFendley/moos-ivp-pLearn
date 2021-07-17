@@ -9,7 +9,7 @@ ENV IVP_BEHAVIOR_DIRS="${IVP_BEHAVIOR_DIRS}:/home/moos/${MOOS}/lib"
 USER root
 RUN usermod -aG sudo moos
 RUN echo "moos:moos" | chpasswd
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y libncurses-dev sudo python2.7-dev python-pip python-tk && apt-get clean
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y libncurses-dev sudo python2.7-dev python-pip python-tk bc && apt-get clean
 RUN apt-get install -y vim emacs-nox tmux git
 RUN pip2 install --no-cache-dir numpy matplotlib 'tensorflow==1.5' 'keras==2.0.8' colorama h5py
 USER moos
@@ -25,6 +25,4 @@ ENV IVP_BEHAVIOR_DIRS="/home/moos/${PLEARN}/lib:${IVP_BEHAVIOR_DIRS}"
 ENV PYTHONPATH="${PYTHONPATH}:/home/moos/${PLEARN}/pLearn/learning_code:/home/moos/${PLEARN}/src/lib_python"
 
 RUN git clone https://github.com/mnovitzky/moos-ivp-pLearn.git
-#COPY --chown=moos:moos . moos-ivp-pLearn/
-
 RUN cd ${PLEARN} && ./build.sh
