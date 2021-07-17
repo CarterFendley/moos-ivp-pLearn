@@ -6,6 +6,8 @@ NO_M200=""
 NO_MOKAI=""
 NO_SHORESIDE=""
 
+VERBOSE=""
+
 
 #-------------------------------------------------------
 #  Part 1: Check for and handle command-line arguments
@@ -19,13 +21,15 @@ for ARGI; do
         NO_MOKAI="true"
     elif [ "${ARGI}" = "--no_m200" -o "${ARGI}" = "-nm2" ] ; then
         NO_M200="true"
+    elif [ "${ARGI}" = "--verbose" -o "${ARGI}" = "-v" ] ; then
+        VERBOSE="true"
     elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then
         TIME_WARP=$ARGI
         echo "Time warp set up to $TIME_WARP."
     elif [ "${ARGI}" = "--just_build" -o "${ARGI}" = "-j" ] ; then
         JUST_BUILD="-j" 
         # Pass $JUST_BUILD directly to the launch commands, this will be blank if not just building
-        echo "Just building files; no vehicle launch."
+        echo "[SIMULATION] Just building files; no vehicle launch."
     else
         CMD_ARGS=$CMD_ARGS" "$ARGI
     fi
@@ -46,6 +50,7 @@ fi
 #-------------------------------------------------------
 #  Part 2: Launching M200s
 #-------------------------------------------------------
+echo "[SIMULATION] Launching M200s..."
 if [[ -z $NO_M200 ]]; then
   cd ./m200
   # Evan Blue
@@ -70,23 +75,36 @@ fi
 #-------------------------------------------------------
 #  Part 4: Launching shoreside
 #-------------------------------------------------------
+echo "[SIMULATION] Launching Shoreside..."
 if [[ -z $NO_SHORESIDE ]]; then
   cd ./shoreside
   ./launch_shoreside.sh $TIME_WARP $JUST_BUILD >& /dev/null &
   cd ..
 fi
 
-sleep 3
-#-------------------------------------------------------
-#  Part 4: Launching uMAC
-#-------------------------------------------------------
-uMAC shoreside/targ_shoreside.moos
 
-#-------------------------------------------------------
-#  Part 5: Killing all processes launched from script
-#-------------------------------------------------------
-echo "Killing Simulation..."
-kill -- -$$
-# sleep is to give enough time to all processes to die
-sleep 3
-echo "All processes killed"
+if [[ -n $VERBOSE ]]; then
+  # If started in verbose output uMAC and (effectively) wait for termination
+  sleep 3
+  #-------------------------------------------------------
+  #  Part 4: Launching uMAC
+  #-------------------------------------------------------
+  uMAC shoreside/targ_shoreside.moos
+
+  #-------------------------------------------------------
+  #  Part 5: Killing all processes launched from script
+  #-------------------------------------------------------
+  echo "[SIMULATION] Killing Simulation..."
+  kill -- -$$
+  # sleep is to give enough time to all processes to die
+  sleep 3
+  echo "[SIMULATION] All processes killed"
+else
+  # If not verbose, use 'wait' to wait for all processes to finish (to be terminated in this case)
+  for job in $(jobs -p); do
+    printf "[SIMULATION] Waiting for job #${job} to finish\n"
+    sleep 1
+    wait "$job"
+  done
+  echo "[SIMULATION] Simulation launch script exiting"
+fi
