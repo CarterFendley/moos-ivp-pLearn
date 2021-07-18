@@ -110,7 +110,7 @@ class Deep_Learner:
         #updates iteration file and save_dir if Constants.save_iteration
         self.iteration=self.update_iters()
         
-        print("saving model to "+self.save_dir)
+        print "[MODEL] Model save directory set to "+self.save_dir
 
         #initialize models
         if self.alg_type == "fitted":
@@ -142,7 +142,7 @@ class Deep_Learner:
         that runs and processes moos_data
         """
 
-        #output action table for behavior to read
+        # Output action table for MOOS-IvP behavior to read
         if(table):
             self.output_table()
             
@@ -160,7 +160,7 @@ class Deep_Learner:
         if not os.path.exists("paths"):
             os.makedirs("paths")
         write_file=open('paths/trajectory_'+str(trial_num)+'.log', 'w')
-        print("starting simulation")
+        print "[TRAINER] Starting simulation episode"
         for _ in range(iters):
             trial_num+=1
             #call simulation
@@ -170,7 +170,7 @@ class Deep_Learner:
             process_file=process_path+'/simulation_'+str(trial_num)+'/simulation.alog'
             read_file=read_path+'/simulation_'+str(trial_num)+'.alog'
             cmd=['python',process_cmd,process_file,read_file]
-            print("processing data from", process_file, "using", process_cmd,"to", read_file)
+            print "[TRAINER] processing data from"+ process_file +"using"+ process_cmd +"on"+ read_file
             subprocess.call(cmd)
 
             #read in processed data -- form: state action next_state
@@ -219,7 +219,7 @@ class Deep_Learner:
                                 self.memory[add_list[1]].append(tuple(add_list))
                             if(add_list[2][Constants.state["out"].index]==1):
                                 self.bad_memory.append(tuple(add_list))
-                                print("added "+str(add_list)+" to bad memory")
+                                print("[TRAINER] Added "+str(add_list)+" to bad memory")
                     else:
                         traj.append(add_list)
                         if(Constants.mem_type == "set"):
@@ -233,9 +233,9 @@ class Deep_Learner:
             flag_captured+= int(captured)
 
         if(Constants.mem_type == "memory per action"):
-            print("Memory sizes")
+            print "[TRAINER] Memory sizes:"
             for action in self.actions:
-                print(len(self.memory[action]))
+                print "\t"+str(action)+": "+str(len(self.memory[action]))
 
         if(total_trials != 0):
             time_out = float(trials_out)/total_trials
@@ -255,7 +255,7 @@ class Deep_Learner:
       Returns: void
     """
     def save_memory(self):
-        print("saving experiences...")
+        print("[MODEL] Saving memory...")
         with open(Constants.save_model_dir+"memory.txt", 'w') as mem:
             if(Constants.mem_type != "memory per action"):
                 for thing in self.memory:
@@ -331,17 +331,18 @@ class Deep_Learner:
       Returns: void
     """            
     def output_table(self, out_address=Constants.out_address, model_address="",  optimal=False):
-        print("outputting table")
+        print "[MODEL] Outputting action table for MOOS-IvP behavior to read..."
         if(model_address == ""):
             model_address = self.save_dir
             
-        #update epsilon and report value
+        # Update epsilon and report value
+        # TODO: Why is this done where
         if not optimal:
             self.eps *= self.eps_decay
             self.eps = max(self.eps_min, self.eps)
-            print("Epsilon: "+ str(self.eps))
+            print "-\t[MODEL] New epsilon: "+ str(self.eps)
         else:
-            print("Epsilon: optimal")
+            print "-\t[MODEL] Epsilon: optimal"
         
         
         with open(out_address, 'w') as file:
@@ -431,9 +432,11 @@ class Deep_Learner:
       Returns: void
     """       
     def save_fitted_model(self):
+        print "[MODEL] Saving model for action",
         for action in self.actions:
-            print("saving model for action"+str(action))
+            print " "+str(action),
             self.model_NN[action].save(self.save_dir+str(action)+".h5")
+        print " done!"
 
     """
     Procedure: save_fitted_weights()
@@ -502,8 +505,9 @@ class Deep_Learner:
             y.append((r+self.discount_factor*max(self.approx_target_q_value(s_1, act) for act in self.actions))[0])
             data_sets[a] = (X, y)
 
+        print "[MODEL] Training Fitted-Q actions..."
         for a in self.actions:
-            print("\n\nTraining Action: " + str(a)+"\n")
+            print "\tAction:"+str(a)+"-------------------------"
             if a not in data_sets:
                 continue
             
@@ -521,33 +525,38 @@ class Deep_Learner:
     def init_fitted_net(self):
         if not self.load:
             #initialize neural_nets with random weights using keras (one neural net for each possible action)
-            print("setting up Neural nets...")
+            print "[MODEL] Setting up Fitted-Q network architecture..."
             for action in self.actions:
-                model=Sequential()
+                model = Sequential()
                 target = Sequential()
+
                 for layer in range(self.num_layers):
-                    if layer==0:
+                    if layer==0: # Input layer (mum of states = num of features)
                         nodes=Dense(units=self.num_units, input_dim=Constants.num_states+1,activation=Constants.activation_function)
-                    else:
+                    else: # All other layers 
                         nodes=Dense(units=self.num_units, activation=Constants.activation_function)
                     model.add(nodes)
                     target.add(nodes)
+
+                # Output layers have one feature (which will be trained to the Q-value)
                 model.add(Dense(units=1,activation="linear"))
                 target.add(Dense(units=1,activation="linear"))
+
                 if Constants.training_type == "stochastic":
                     model.compile(loss='mean_squared_error', optimizer=optimizers.SGD(lr=0.01, clipnorm=1.))
                 else:
                     model.compile(loss='mean_squared_error', optimizer=Adam(lr=self.lr), metrics=["accuracy"])
                 target.compile(loss='mean_squared_error', optimizer=Adam(lr=self.lr), metrics=["accuracy"])
+
                 self.model_NN[action]=(model)
                 self.target_NN[action]=(target)
         else:
-            print "loading actions",
+            print "[MODEL] Loading Fitted-Q network from load directory",
             for action in self.actions:
                 print('.'),
                 self.model_NN[action]=load_model(Constants.load_model_dir+str(action)+".h5")
                 self.target_NN[action]=load_model(Constants.load_model_dir+str(action)+".h5")
-            print "done"
+            print " done"
         self.save_fitted_model()
 
     """

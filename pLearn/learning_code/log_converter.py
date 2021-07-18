@@ -5,7 +5,7 @@ import sys
 import math
 
    
-print( 'Converting file: ', str(sys.argv[1]))
+#print( 'Converting file: ', str(sys.argv[1]))
 
 #read alog file line by line into array
 with open(sys.argv[1]) as inp:
