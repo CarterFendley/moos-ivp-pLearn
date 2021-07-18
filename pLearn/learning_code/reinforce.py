@@ -227,7 +227,7 @@ else:
     raise SyntaxError("Not a Valid Argument, Please call with on of the following flags: 'test', 'load', 'new', 'evaluate'")
     
 if(sys.argv[1] == "new" or sys.argv[1] == "load"):
-    learner.initialize()
+    #learner.initialize()
     if(Constants.alg_type == "fitted"):
         learner.fitted_Q_learn()
     else:
