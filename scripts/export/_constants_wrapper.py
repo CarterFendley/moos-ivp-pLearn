@@ -24,12 +24,12 @@ class Constants(Constants_Original):
             
             self.test_address = os.path.join(
                   CURRENT_DIRECTORY,
-                  'model')
+                  'model/')
             
             # pLearn will break without this
             self.save_model_dir = os.path.join(
                   CURRENT_DIRECTORY,
-                  '.dummy_save_dir'
+                  '.dummy_save_dir/'
             )
             
 
