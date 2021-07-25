@@ -1,7 +1,10 @@
 #!/bin/bash
 TIME_WARP=1
 
-SHORE_IP="192.168.1.226" #155 for normal shoreside
+SHORE_IP="$SHORE_IP"
+if [[ -z "$SHORE_IP" ]]; then
+    SHORE_IP="192.168.1.226" #155 for normal shoreside
+fi
 SHORE_LISTEN="9300"
 
 TRAIL_RANGE="3"
@@ -79,6 +82,7 @@ for ARGI; do
         echo "Just building files; no vehicle launch."
     elif [ "${ARGI}" = "--sim" -o "${ARGI}" = "-s" ] ; then
         SIM="SIM"
+        SHORE_IP="localhost"
         echo "Simulation mode ON."
     elif [ "${ARGI}" = "--red" -o "${ARGI}" = "-r" ] ; then
         VTEAM="red"

@@ -43,4 +43,5 @@ IMAGE_ID="$(<$STUB_NAME)"
 # Open felix's pShare port 9306
 #docker run -p 9306:9306 --name "$IMAGE_ID" -it "$IMAGE_ID" bash
 docker run -p 9306:9306 --name "$IMAGE_ID" \
+  --add-host host.docker.internal:host-gateway \
   -it "$IMAGE_ID" /home/moos/exported_pLearn/scripts/launch_vehicle.sh

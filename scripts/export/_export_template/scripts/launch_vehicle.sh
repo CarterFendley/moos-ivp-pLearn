@@ -20,6 +20,8 @@ MYDIR="$(dirname "$(actualpath "$0")")"
 REINFORCE_PATH="$MYDIR/../reinforce.py"
 M200_PATH="$MYDIR/../mission/m200/"
 
+DOCKER_GATEWAY="host.docker.internal"
+
 # ----------------------------------------
 # Part 2: Run Reinforce
 
@@ -31,7 +33,21 @@ python "$REINFORCE_PATH" test
 PREVIOUS_WD="$(pwd)"
 cd "$M200_PATH"
 
-./launch_m200_test.sh -f -r -s >& /dev/null &
+SHORE_IP="$(ping -c 1 -t 1 $DOCKER_GATEWAY | head -1 | cut -d ' ' -f 3 | tr -d '()\:')"
+if [ -z "$SHORE_IP" ]; then
+    echo "Unable to resolve docker gateway '$DOCKER_GATEWAY' to IP!"
+    exit 1
+else
+    echo "Docker gateway resolved to $SHORE_IP"
+fi
+
+SIM="SIM" # Set sim too cause normal sim flag will over ride the shore_ip
+
+export SHORE_IP
+export SIM
+
+
+./launch_m200_test.sh -f -r >& /dev/null &
 
 sleep 3
 

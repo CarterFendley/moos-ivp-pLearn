@@ -37,8 +37,9 @@ if [[ -f "$STUB_NAME" ]]; then
 fi
 
 # Build image and grab ID
-echo "Building docker container (this may take a while)..."
+printf "Building docker container (this may take a while)..."
 IMAGE_ID="$(docker build . 2>/dev/null | awk '/Successfully built/{print $NF}')"
+printf " Done!\n"
 
 # Assert scucess
 if [[ -z $IMAGE_ID ]]; then

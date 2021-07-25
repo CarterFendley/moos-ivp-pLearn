@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -l
+#!/usr/bin/env bash
 # Author: Carter Fendley 2021
 # Attributions: Thanks to Conlan Ceaser (HeroCC) & Misha Novitzky for blazing the trail of Docker + MOOS-IvP
 

@@ -78,6 +78,7 @@ for ARGI; do
         echo "Just building files; no vehicle launch."
     elif [ "${ARGI}" = "--sim" -o "${ARGI}" = "-s" ] ; then
         SIM="SIM"
+        SHORE_IP="localhost"
         echo "Simulation mode ON."
     elif [ "${ARGI}" = "--red" -o "${ARGI}" = "-r" ] ; then
         VTEAM="red"
