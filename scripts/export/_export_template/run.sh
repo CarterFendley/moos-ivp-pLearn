@@ -26,12 +26,19 @@ function tear_down() {
 trap tear_down EXIT
 
 STUB_NAME="pLearn_docker_stub"
+BUILD=""
+
+for ARGI; do
+  if [[ "$ARGI" = "--build-docker" ]]; then
+    BUILD="yes"
+  fi
+done
 
 # ----------------------------------------
 # Part 2: Get / Build docker image
 
 # If no docker image stub, build image
-if [[ ! -f "$STUB_NAME" || "$1" == "--build" ]]; then
+if [[ ! -f "$STUB_NAME" || -n "$BUILD" ]]; then
   ./docker_build.sh --force
 fi
 
@@ -44,4 +51,4 @@ IMAGE_ID="$(<$STUB_NAME)"
 #docker run -p 9306:9306 --name "$IMAGE_ID" -it "$IMAGE_ID" bash
 docker run -p 9306:9306 --name "$IMAGE_ID" \
   --add-host host.docker.internal:host-gateway \
-  -it "$IMAGE_ID" /home/moos/exported_pLearn/scripts/launch_vehicle.sh
+  -it "$IMAGE_ID" /home/moos/exported_pLearn/scripts/launch_vehicle.sh "$@"
