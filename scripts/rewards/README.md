@@ -7,6 +7,8 @@
 
 ## Installing and running 
 
+**NOTE:** All of these instructions are to be run in the host machine NOT the pLearn docker container
+
 ### Prereqs
 
 You should have some version of `python3` on your OS and install the following dependicies
