@@ -31,6 +31,8 @@ vvvvv Replace the "make_rewards" function and others below vvvvvv
 
 **NOTE:** This should include all the dependencies of your function such as `within_goal()` `within_bound()` and `within_tagged` for the default pLearn reward function
 
+**NOTE:** This does NOT need to include the `Constants.py` file. The script will automatically read this file from the `pLearn/learning_code/` directory
+
 Save the file once done
 
 ### Running the script
