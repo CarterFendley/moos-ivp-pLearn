@@ -1,7 +1,9 @@
 # Reward plotting
 
-![Rewards Image Front][./pics/rewards_front.png]
-![Rewards Image Side][./pics/rewards_side.png]
+<p float="left">
+  <img src="pics/rewards_front.png" width="500" />
+  <img src="pics/rewards_side.png" width="500" /> 
+</p>
 
 ## Installing and running 
 
@@ -36,3 +38,5 @@ The following command should bring up a 3d visualization of the reward function
 ```
 ./rewards.py
 ```
+
+
