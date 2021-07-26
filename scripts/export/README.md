@@ -87,6 +87,7 @@ TODO: Constants wrapper, copying of scripts, docker containers
 
 1. These exported models are currently **ONLY** suitable for use in a Ubuntu OS shoreside running on that os (not in another docker container).
 2. The docker container assoicated with the `run.sh` script should not be used to launch multiple vehicles in. If you need to launch multiple vehicles, it would be wise to make two seperate folders `exported_model1` and `exported_model2` and launch both of these. **The reason** is partially due to how the scripts name launched containers and access them... and partial due to the `uMAC targ_*.moos` line in the `scripts/launch_vehicle.sh` script (executed by the run script)
+3. Due to the current revision number of moos-ivp that the docker container is referencing, there is a bug with grabing flags. Vehicles will only attempt a flag grab once.
 
 
 TODO: what is needed to change if someone messes with... the model archtecture... the simulation stuff
