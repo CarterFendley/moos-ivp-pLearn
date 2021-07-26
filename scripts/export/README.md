@@ -57,7 +57,7 @@ Or if you were in the `scripts/export` directory...
 
 After you have an `exported_model` you will want to run it. Below shows the basic usage for runing exported models 
 
-**NOTE**: As of now, the exported models are configured to connect to a shoreside on the docker's host machine's network.
+**NOTE**: As of now, the exported models are configured to connect to a shoreside on the docker's host machine's network and only work in Linux versions of docker.
 
 ```
 ./exported_model/run.sh [VEHICLE_FLAG] [TEAM_FLAG] [TIMEWARP] [--build-docker]
@@ -85,17 +85,8 @@ TODO: Constants wrapper, copying of scripts, docker containers
 ## <a name="warning-link"></a>Warnings
 
 
-1. The docker container assoicated with the `run.sh` script should not be used to launch multiple vehicles in. If you need to launch multiple vehicles, it would be wise to make two seperate folders `exported_model1` and `exported_model2` and launch both of these. **The reason** is partially due to how the scripts name launched containers and access them... and partial due to the `uMAC targ_*.moos` line in the `scripts/launch_vehicle.sh` script (executed by the run script)
+1. These exported models are currently **ONLY** suitable for use in a Ubuntu OS shoreside running on that os (not in another docker container).
+2. The docker container assoicated with the `run.sh` script should not be used to launch multiple vehicles in. If you need to launch multiple vehicles, it would be wise to make two seperate folders `exported_model1` and `exported_model2` and launch both of these. **The reason** is partially due to how the scripts name launched containers and access them... and partial due to the `uMAC targ_*.moos` line in the `scripts/launch_vehicle.sh` script (executed by the run script)
 
-TODO:
-Exporting process
-file structure
-    - can do more warnings here
-running a vehicle
-runnin a shoreside
-pNodeBroker changes
-helpful scripts
 
-how it works... in file structure
-
-what is needed to change if someone messes with... the model archtecture... the simulation stuff
+TODO: what is needed to change if someone messes with... the model archtecture... the simulation stuff
