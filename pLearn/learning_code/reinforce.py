@@ -214,130 +214,130 @@ def evaluate(deep_learner, process_cmd, simulation_cmd, iters = Constants.num_ev
 #                            Main
 #----------------------------------------------------------------------
 
-#sys.stdout = open('misha_log.txt','a')
-#sys.stderr = open('misha_log.txt','a')
-if(sys.argv[1]=="new" or sys.argv[1]=="debug" or sys.argv[1]=="test" or sys.argv[1]=="evaluate"):
-    learner=Deep_Learner(make_rewards(Constants.smooth_reward), make_actions(), Constants.alg_type, False)
-elif(sys.argv[1]=="load"):
-    #check for proper load_model_dir path
-    if not os.path.exists(Constants.load_model_dir):
-        print(colorama.Fore.RED + "ERROR: Constants.load_model dir: " + Constants.load_model_dir+ " not valid")
-    learner=Deep_Learner(make_rewards(Constants.smooth_reward), make_actions(), Constants.alg_type, True)
-else:
-    raise SyntaxError("Not a Valid Argument, Please call with on of the following flags: 'test', 'load', 'new', 'evaluate'")
-    
-if(sys.argv[1] == "new" or sys.argv[1] == "load"):
-    learner.initialize()
-    if(Constants.alg_type == "fitted"):
-        learner.fitted_Q_learn()
+# Make this file importable
+if __name__ == '__main__':
+    if(sys.argv[1]=="new" or sys.argv[1]=="debug" or sys.argv[1]=="test" or sys.argv[1]=="evaluate"):
+        learner=Deep_Learner(make_rewards(Constants.smooth_reward), make_actions(), Constants.alg_type, False)
+    elif(sys.argv[1]=="load"):
+        #check for proper load_model_dir path
+        if not os.path.exists(Constants.load_model_dir):
+            print(colorama.Fore.RED + "ERROR: Constants.load_model dir: " + Constants.load_model_dir+ " not valid")
+        learner=Deep_Learner(make_rewards(Constants.smooth_reward), make_actions(), Constants.alg_type, True)
     else:
-        learner.DQL()
+        raise SyntaxError("Not a Valid Argument, Please call with on of the following flags: 'test', 'load', 'new', 'evaluate'")
         
-elif(sys.argv[1]=="test"):
-    #let's validate Constants.test_address
-    if not os.path.exists(Constants.test_address):
-        #the path provided is invalid
-        print(colorama.Fore.RED + "ERROR: The provided path in Constants.py test_address of :" + Constants.test_address + " is invalid")
-        sys.exit()
-
-    if len(sys.argv)>2:
+    if(sys.argv[1] == "new" or sys.argv[1] == "load"):
         learner.initialize()
-        performance_metrics=[]
-        iters = int(sys.argv[2])
-        out1 = open(Constants.test_address+"pre_assessment.log", 'w')
-        user_path = os.getenv("HOME")+'/'
-        plearn_path = user_path + 'moos-ivp-pLearn'
-        process = plearn_path + "/pLearn/learning_code/log_converter.py"
-        simulation = plearn_path + "/pLearn/learning_code/evaluator.sh"
-        for i in range(iters+1):
-            iteration_path = Constants.test_address+"iteration_"+str(i)+"/"
+        if(Constants.alg_type == "fitted"):
+            learner.fitted_Q_learn()
+        else:
+            learner.DQL()
             
-            if not os.path.exists(iteration_path):
-                print(colorama.Fore.RED + "ERROR: the provided path + iterations in Constants.py of :" + iteration_path + " is invalid")
-                sys.exit()
+    elif(sys.argv[1]=="test"):
+        #let's validate Constants.test_address
+        if not os.path.exists(Constants.test_address):
+            #the path provided is invalid
+            print(colorama.Fore.RED + "ERROR: The provided path in Constants.py test_address of :" + Constants.test_address + " is invalid")
+            sys.exit()
+
+        if len(sys.argv)>2:
+            learner.initialize()
+            performance_metrics=[]
+            iters = int(sys.argv[2])
+            out1 = open(Constants.test_address+"pre_assessment.log", 'w')
+            user_path = os.getenv("HOME")+'/'
+            plearn_path = user_path + 'moos-ivp-pLearn'
+            process = plearn_path + "/pLearn/learning_code/log_converter.py"
+            simulation = plearn_path + "/pLearn/learning_code/evaluator.sh"
+            for i in range(iters+1):
+                iteration_path = Constants.test_address+"iteration_"+str(i)+"/"
                 
-            learner.output_table(optimal = True, model_address = iteration_path)
-            percent_inbound, score, percent_captured = learner.sim_episode(0, iters=Constants.num_test_iters, table=False, simulation_cmd = Constants.test_sim_cmd)
-            #pct_in,pct_captured = evaluate(learner, process, simulation, iters = 1)
-            #percent_inbound = percent_inbound-(1-pct_in)
-            performance_metrics.append((i, int(percent_inbound*100), int(score), int(percent_captured*100)))
-            #print out progress
-            out1.write("\n iteration_"+str(i)+":  avg reward: "+str(score)+" pct time inbounds: "+str(percent_inbound)+
-                            " pct captured: "+str(percent_captured)+"\n")
-            print("\n------ Finished evaluating iteration "+str(i)+": "+str(int(percent_inbound*100))+" pct time inbounds,  "+str(score)+" reward -----\n")
+                if not os.path.exists(iteration_path):
+                    print(colorama.Fore.RED + "ERROR: the provided path + iterations in Constants.py of :" + iteration_path + " is invalid")
+                    sys.exit()
+                    
+                learner.output_table(optimal = True, model_address = iteration_path)
+                percent_inbound, score, percent_captured = learner.sim_episode(0, iters=Constants.num_test_iters, table=False, simulation_cmd = Constants.test_sim_cmd)
+                #pct_in,pct_captured = evaluate(learner, process, simulation, iters = 1)
+                #percent_inbound = percent_inbound-(1-pct_in)
+                performance_metrics.append((i, int(percent_inbound*100), int(score), int(percent_captured*100)))
+                #print out progress
+                out1.write("\n iteration_"+str(i)+":  avg reward: "+str(score)+" pct time inbounds: "+str(percent_inbound)+
+                                " pct captured: "+str(percent_captured)+"\n")
+                print("\n------ Finished evaluating iteration "+str(i)+": "+str(int(percent_inbound*100))+" pct time inbounds,  "+str(score)+" reward -----\n")
+                
+            out1.close()
+            #plot performance
+            fig = plt.figure(1)
+
+            plt.subplot(222)
+            plt.title("Percent Time Inbounds and Untagged")
+            plt.scatter([x[0] for x in performance_metrics], [x[1] for x in performance_metrics])
+            plt.plot([x[0] for x in performance_metrics], [x[1] for x in performance_metrics], color = 'blue')
+
+            plt.subplot(212)
+            plt.title("Reward")
+            plt.scatter([x[0] for x in performance_metrics], [x[2] for x in performance_metrics])
+            plt.plot([x[0] for x in performance_metrics], [x[2] for x in performance_metrics], color = 'red') 
             
-        out1.close()
-         #plot performance
-        fig = plt.figure(1)
+            plt.subplot(221)
+            plt.title("Percent of Successful Captures")
+            plt.scatter([x[0] for x in performance_metrics], [x[3] for x in performance_metrics])
+            plt.plot([x[0] for x in performance_metrics], [x[3] for x in performance_metrics], color = 'green') 
 
-        plt.subplot(222)
-        plt.title("Percent Time Inbounds and Untagged")
-        plt.scatter([x[0] for x in performance_metrics], [x[1] for x in performance_metrics])
-        plt.plot([x[0] for x in performance_metrics], [x[1] for x in performance_metrics], color = 'blue')
+            fig.savefig(Constants.test_address+"model_graph.png")
+            #sort the models by reward
+            performance_metrics.sort(key = lambda x: x[2])
+            
+            #write models out to a file
 
-        plt.subplot(212)
-        plt.title("Reward")
-        plt.scatter([x[0] for x in performance_metrics], [x[2] for x in performance_metrics])
-        plt.plot([x[0] for x in performance_metrics], [x[2] for x in performance_metrics], color = 'red') 
-        
-        plt.subplot(221)
-        plt.title("Percent of Successful Captures")
-        plt.scatter([x[0] for x in performance_metrics], [x[3] for x in performance_metrics])
-        plt.plot([x[0] for x in performance_metrics], [x[3] for x in performance_metrics], color = 'green') 
+            outfile = open(Constants.test_address+"model_assessment.log", 'w')
 
-        fig.savefig(Constants.test_address+"model_graph.png")
-        #sort the models by reward
-        performance_metrics.sort(key = lambda x: x[2])
-        
-        #write models out to a file
+            #sort top models by percent time inbounds, from highest to lowest
+            #performance_metrics.sort(key = lambda x: -x[1])
+            outfile.write("\n----------------Top Performers--------------------\n\n")
+            for i, percent_in, score, percent_captured in performance_metrics:
+                outfile.write("\n iteration_"+str(i)+":  avg reward: "+str(score)+" pct time inbounds: "+str(percent_in)+
+                                " pct captured: "+str(percent_captured)+"\n")
+            
+            outfile.close()
 
-        outfile = open(Constants.test_address+"model_assessment.log", 'w')
+    #        for r in range(15):
+    #            (i, _, _, _) = performance_metrics[r]
+    #            learner.output_table(optimal = True, model_address = Constants.test_address+"iteration_"+str(i)+"/")
+    #            percent_in, score, percent_captured = learner.sim_episode(0, iters=Constants.num_test_iters, table=False, simulation_cmd = Constants.test_sim_cmd)
+                #pct_in, _ = evaluate(learner, process, simulation)
+                #percent_inbound = percent_inbound-(1-pct_in)
+    #            save_address = Constants.test_address+"iteration_"+str(i)+"/evaluation_statistics.log"
+    #            outfile = open(save_address, 'w')
+    #            outfile.write("\n------- Ran "+str(Constants.num_eval_iters)+" iterations -----\n\n")
+    #            outfile.write("avg reward: "+str(score)+" pct time out of bounds: "+str(percent_out)+
+    #                                    " pct captured: "+str(percent_captured)+"\n")
+    #            outfile.close()
 
-        #sort top models by percent time inbounds, from highest to lowest
-        #performance_metrics.sort(key = lambda x: -x[1])
-        outfile.write("\n----------------Top Performers--------------------\n\n")
-        for i, percent_in, score, percent_captured in performance_metrics:
-            outfile.write("\n iteration_"+str(i)+":  avg reward: "+str(score)+" pct time inbounds: "+str(percent_in)+
-                            " pct captured: "+str(percent_captured)+"\n")
-        
+            plt.show()
+                
+            
+        else:
+            learner.output_table(optimal=True,  model_address = Constants.test_address)
+            
+
+    elif sys.argv[1] == "evaluate":
+        save_address = Constants.test_address+"evaluation_statistics.log"
+        user_path = os.getenv("HOME") + '/'
+        plearn_path = user_path + '/moos-ivp-pLearn'
+        base_address = plearn_path + "/pLearn/learning_code/"
+        process = base_address+"log_converter.py"
+        simulation = base_address+"evaluator.sh"
+        #let's validate Constants.test_address
+        if not os.path.exists(Constants.test_address):
+            #the path provided is invalid
+            print("ERROR: The provided path in Constants.py test_address of :" + Constants.test_address + " is invalid")
+            sys.exit()
+        learner.output_table(optimal = True, model_address = Constants.test_address)
+        pct_in, percent_captured = evaluate(learner, process, simulation)
+        outfile = open(save_address, 'w')
+        outfile.write("\n------- Ran "+str(Constants.num_eval_iters)+" iterations -----\n\n")
+        outfile.write(" pct time out: "+str(pct_in)+
+                    " pct captured: "+str(percent_captured))
         outfile.close()
-
-#        for r in range(15):
-#            (i, _, _, _) = performance_metrics[r]
-#            learner.output_table(optimal = True, model_address = Constants.test_address+"iteration_"+str(i)+"/")
-#            percent_in, score, percent_captured = learner.sim_episode(0, iters=Constants.num_test_iters, table=False, simulation_cmd = Constants.test_sim_cmd)
-            #pct_in, _ = evaluate(learner, process, simulation)
-            #percent_inbound = percent_inbound-(1-pct_in)
-#            save_address = Constants.test_address+"iteration_"+str(i)+"/evaluation_statistics.log"
-#            outfile = open(save_address, 'w')
-#            outfile.write("\n------- Ran "+str(Constants.num_eval_iters)+" iterations -----\n\n")
-#            outfile.write("avg reward: "+str(score)+" pct time out of bounds: "+str(percent_out)+
-#                                    " pct captured: "+str(percent_captured)+"\n")
-#            outfile.close()
-
-        plt.show()
-            
-        
-    else:
-        learner.output_table(optimal=True,  model_address = Constants.test_address)
-        
-
-elif sys.argv[1] == "evaluate":
-    save_address = Constants.test_address+"evaluation_statistics.log"
-    user_path = os.getenv("HOME") + '/'
-    plearn_path = user_path + '/moos-ivp-pLearn'
-    base_address = plearn_path + "/pLearn/learning_code/"
-    process = base_address+"log_converter.py"
-    simulation = base_address+"evaluator.sh"
-    #let's validate Constants.test_address
-    if not os.path.exists(Constants.test_address):
-        #the path provided is invalid
-        print("ERROR: The provided path in Constants.py test_address of :" + Constants.test_address + " is invalid")
-        sys.exit()
-    learner.output_table(optimal = True, model_address = Constants.test_address)
-    pct_in, percent_captured = evaluate(learner, process, simulation)
-    outfile = open(save_address, 'w')
-    outfile.write("\n------- Ran "+str(Constants.num_eval_iters)+" iterations -----\n\n")
-    outfile.write(" pct time out: "+str(pct_in)+
-                  " pct captured: "+str(percent_captured))
-    outfile.close()
