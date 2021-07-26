@@ -110,7 +110,7 @@ unless you really want then go ahead
 ====================================
 '''
 
-def plot():
+def plot(defender=False):
   # -------------------------
   # Part 1: Get reward values
 
@@ -119,6 +119,7 @@ def plot():
   TOP_LEFT = np.asarray((-83,-49))
   BOTTOM_LEFT = np.asarray((-53,-114))
   BOTTOM_RIGHT = np.asarray((82,-56))
+  DEFENDER = np.asarray((-50,-80))
 
   def d_to_upper(p):
     return np.cross(TOP_RIGHT-TOP_LEFT, p-TOP_LEFT)/np.linalg.norm(TOP_RIGHT-TOP_LEFT)
@@ -134,6 +135,9 @@ def plot():
 
   def d_to_flag(p):
     return abs(np.linalg.norm(FLAG-p))
+  
+  def d_to_defender(p):
+    return abs(np.linalg.norm(DEFENDER-p))
 
   x_pos = []
   y_pos = []
@@ -153,6 +157,7 @@ def plot():
       # Only process points which are in bounds of the feild
       if d_upper < 0 and d_lower > 0 and d_left < 0 and d_right > 0:
         d_flag = d_to_flag((x,y))
+        d_denfender = d_to_defender((x,y))
 
         # Construct state to be passed to make_rewards
         state = [50]*12 # TODO: Auto build this 50 cause want distances to be far idk
@@ -163,8 +168,13 @@ def plot():
         state[Constants.state["upperBound"].index] = abs(d_upper)
         state[Constants.state["lowerBound"].index] = abs(d_lower)
         
-        # Make distance to enemy large as this script can't handl that well
-        state[Constants.state["enemy_dist"].index] = 100
+        
+        if defender:
+          # Reference the static enemy position
+          state[Constants.state["enemy_dist"].index] = d_denfender
+        else:
+          # Make distance to enemy large
+          state[Constants.state["enemy_dist"].index] = 400
 
         state[Constants.state["flag_dist"].index] = d_flag
         state[Constants.state["out"].index] = 0 # In bounds
@@ -177,6 +187,7 @@ def plot():
 
   # -------------------------------
   # Part 2: Plotting
+
   fig = plt.figure()
   ax = plt.axes(projection='3d')
 
