@@ -20,7 +20,7 @@ import sys
 import time
 import os.path
 
-
+from datetime import datetime
 
 #import constants to be used
 from Constants import Constants
@@ -64,7 +64,7 @@ class Deep_Learner:
         self.iteration = 0
         self.alg_type = alg_type
         self.initialize()
-        
+        self.total_sim_wait_time = None    
                 
     """
     Initializes a Deep_Learner instance that can train a model, and initializes
@@ -141,6 +141,8 @@ class Deep_Learner:
         function to interface with the simulation_engine (moos simulator). Calls subfunction
         that runs and processes moos_data
         """
+
+        start_time = datetime.now()
 
         #output action table for behavior to read
         if(table):
@@ -245,8 +247,20 @@ class Deep_Learner:
             pct_captured = 0      
 
         write_file.close()
+
+        elapsed = datetime.now() - start_time
+        if self.total_sim_wait_time is None:
+            self.total_sim_wait_time = elapsed
+        else:
+            self.total_sim_wait_time += elapsed
+        print "------------------------------"
+        print "Total time: "+str(self.total_sim_wait_time)
+        print "This Episode: "+str(elapsed)
+        print "------------------------------"
+
         return (time_out, total_reward, pct_captured)
- 
+
+
     """
     Procedure: save_memory()
 
